@@ -7,7 +7,15 @@ import random
 
 
 def pil2cv(image):
-    """PIL型->OpenCV型"""
+    """
+    PIL型->OpenCV型
+    new_image = np配列の符号なし, 8bit整数型
+    2次元配列の場合、そのまま（グレイ画像？）
+    RGB画像の場合RGBからBGRに変換
+    RGBA画像の場合、RGBAからBGRAに変換
+    ・射影変化せずに面積計測する機能の追加
+    ・黒色境界描画機能の追加
+    """
     new_image = np.array(image, dtype=np.uint8)
     if new_image.ndim == 2:
         pass
@@ -19,6 +27,9 @@ def pil2cv(image):
 
 
 def sidebar_parm():
+    """
+    画像拡張子, jpgだけでなくpngもOKにしたい
+    """
     uploaded_file = st.sidebar.file_uploader("画像アップロード", type="jpg")
     mode = st.sidebar.selectbox("モードの選択", ("射影変換なし", "射影変換あり"))
     mode2 = st.sidebar.selectbox(
@@ -42,6 +53,12 @@ def sidebar_parm():
 
 
 def get_coordinate(uploaded_file):
+    """
+    session_stateはブラウザの更新前後で変数を保持するための場所
+    Image.openはcv2.imreadと同じ役割、ファイル名に日本語も指定できる
+    その後、numpy配列に変換しているimage.openの段階ではどうなってる？
+    初めからcv2.imreadの方が楽なのでは？
+    """
     if "coord_lst" not in st.session_state:
         st.session_state["coord_lst"] = []
     if uploaded_file is not None:
@@ -63,6 +80,10 @@ def get_coordinate(uploaded_file):
                 coordinates = int(value["x"] * ratio_w), int(value["y"] * ratio_h)
                 st.session_state["coord_lst"].append(coordinates)
                 st.write(st.session_state["coord_lst"])
+                """
+                ここにcv2.circleを追加して画像に描画
+                Reset時に戻れるようにforループを入れる必要がある
+                """
                 if len(st.session_state["coord_lst"]) == 4:
                     st.success(
                         "座標の入力が完了しました。やり直しがしたい場合はResetボタンをクリックしてください。"
@@ -198,6 +219,7 @@ if __name__ == "__main__":
         if i_trans is not None:
             th1 = threshold(uploaded_file, i_trans, mode, mode2, th, bl, C)
             rabeling(th1)
+        """画像の保存処理をここに入れる"""
         # if button_run is True:
         # th1 = threshold(uploaded_file, i_trans, mode, mode2, th, bl, C)
         # rabeling(th1)
