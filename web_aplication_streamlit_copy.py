@@ -78,27 +78,23 @@ def get_coordinate(uploaded_file):
         if value is not None:
             if len(st.session_state["coord_lst"]) < 4:
                 coordinates = int(value["x"] * ratio_w), int(value["y"] * ratio_h)
+                # st.write(st.session_state["coord_lst"])
                 st.session_state["coord_lst"].append(coordinates)
                 st.write(st.session_state["coord_lst"])
                 """
                 ここにcv2.circleを追加して画像に描画
-                Reset時に戻れるようにforループを入れる必要がある
                 """
                 if len(st.session_state["coord_lst"]) == 4:
-                    st.success(
-                        "座標の入力が完了しました。やり直しがしたい場合はResetボタンをクリックしてください。"
-                    )
-                    if st.button("Reset", type="primary"):
-                        st.session_state["coord_lst"] = []
-                    else:
-                        coordinate_list = st.session_state["coord_lst"]
-                        return coordinate_list
-            elif len(st.session_state["coord_lst"]) > 4:
-                st.warning(
-                    "座標が4個以上入力されました。Resetボタンをクリックしてください。"
-                )
-                if st.button("Reset", type="primary"):
+                    st.button("OK", type="primary")
+                    st.button("Reset", type="primary")
+
+            elif len(st.session_state["coord_lst"]) == 4:
+                if st.sidebar.button("Reset", type="primary"):
                     st.session_state["coord_lst"] = []
+                elif st.sidebar.button("OK", type="primary"):
+                    st.write(st.session_state["coord_lst"])
+                    coordinate_list = st.session_state["coord_lst"]
+                    return coordinate_list
 
 
 def transform(uploaded_file, coordinate_list):
@@ -220,11 +216,7 @@ if __name__ == "__main__":
             th1 = threshold(uploaded_file, i_trans, mode, mode2, th, bl, C)
             rabeling(th1)
         """画像の保存処理をここに入れる"""
-        # if button_run is True:
-        # th1 = threshold(uploaded_file, i_trans, mode, mode2, th, bl, C)
-        # rabeling(th1)
     else:
-        # i_trans = None
         i_trans = uploaded_file
         print(uploaded_file, i_trans, mode, mode2, th, bl, C)
         th1 = threshold(uploaded_file, i_trans, mode, mode2, th, bl, C)
