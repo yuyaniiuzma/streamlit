@@ -81,6 +81,15 @@ def get_coordinate(uploaded_file):
                 # st.write(st.session_state["coord_lst"])
                 st.session_state["coord_lst"].append(coordinates)
                 st.write(st.session_state["coord_lst"])
+                cv2.circle(
+                    img_resize,
+                    center=(168, 168),
+                    radius=60,
+                    color=(0, 255, 0),
+                    thickness=3,
+                    lineType=cv2.LINE_4,
+                    shift=0,
+                )
                 """
                 ここにcv2.circleを追加して画像に描画
                 """
@@ -89,12 +98,12 @@ def get_coordinate(uploaded_file):
                     st.button("Reset", type="primary")
 
             elif len(st.session_state["coord_lst"]) == 4:
-                if st.sidebar.button("Reset", type="primary"):
-                    st.session_state["coord_lst"] = []
-                elif st.sidebar.button("OK", type="primary"):
+                if st.button("OK", type="primary"):
                     st.write(st.session_state["coord_lst"])
                     coordinate_list = st.session_state["coord_lst"]
                     return coordinate_list
+                elif st.button("Reset", type="primary"):
+                    st.session_state["coord_lst"] = []
 
 
 def transform(uploaded_file, coordinate_list):
@@ -131,16 +140,15 @@ def transform(uploaded_file, coordinate_list):
 
 def threshold(uploaded_file, i_trans, mode, mode2, th, bl, C):
     col3, col4 = st.columns(2)
-    col3.header("元画像")
     col4.header("二値化画像")
     if uploaded_file is not None:
         if mode == "射影変換なし":
             image = Image.open(uploaded_file)
             img_array = np.array(image)
+            col3.header("元画像")
+            col3.image(img_array)
         else:
             img_array = i_trans
-        col3.image(img_array)
-        # img = pil2cv(image)
         gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
         if mode2 == "threshold":
             ret, th1 = cv2.threshold(gray, th, 255, cv2.THRESH_BINARY)
